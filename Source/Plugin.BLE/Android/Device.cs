@@ -47,10 +47,18 @@ namespace Plugin.BLE.Android
         public Device(Adapter adapter, BluetoothDevice nativeDevice, BluetoothGatt gatt, int rssi = 0, byte[] advertisementData = null, bool isConnectable = true)
             : base(adapter, nativeDevice)
         {
-            Update(nativeDevice, gatt);
             Rssi = rssi;
             AdvertisementRecords = ParseScanRecord(advertisementData);
             IsConnectable = isConnectable;
+
+            // set device name for advertisements of type 'CompleteLocalName' (if present)
+            foreach (var ar in AdvertisementRecords)
+            {
+                if (ar.Type == AdvertisementRecordType.CompleteLocalName)
+                    Name = (System.Text.Encoding.UTF8.GetString(ar.Data)).Trim();
+            }
+
+            Update(nativeDevice, gatt);
             _gattCallback = new GattCallback(adapter, this);
         }
 
@@ -62,9 +70,9 @@ namespace Plugin.BLE.Android
             NativeDevice = nativeDevice;
             _gatt = gatt;
 
-
             Id = ParseDeviceId();
-            Name = NativeDevice.Name;
+            if (!string.IsNullOrEmpty(NativeDevice.Name))
+                Name = NativeDevice.Name;
         }
 
         internal bool IsOperationRequested { get; set; }
