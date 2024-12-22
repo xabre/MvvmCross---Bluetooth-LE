@@ -302,32 +302,31 @@ namespace Plugin.BLE.Abstractions
             DeviceConnected?.Invoke(this, new DeviceEventArgs { Device = device });
         }
 
-        /// <summary>
-        /// Handle disconnection of a device.
-        /// </summary>
-        public void HandleDisconnectedDevice(bool disconnectRequested, IDevice device)
-        {
-            if (disconnectRequested)
-            {
-                Trace.Message("DisconnectedPeripheral by user: {0}", device.Name);
-                DeviceDisconnected?.Invoke(this, new DeviceEventArgs { Device = device });
-            }
-            else
-            {
-                Trace.Message("DisconnectedPeripheral by lost signal: {0}", device.Name);
-                DeviceConnectionLost?.Invoke(this, new DeviceErrorEventArgs { Device = device });
+		/// <summary>
+		/// Handle disconnection of a device.
+		/// </summary>
+		public void HandleDisconnectedDevice(bool disconnectRequested, IDevice device, string message = "")
+		{
+			if (disconnectRequested)
+			{
+				Trace.Message("DisconnectedPeripheral by user: {0}", device.Name);
+				DeviceDisconnected?.Invoke(this, new DeviceEventArgs { Device = device });
+			}
+			else
+			{
+				string m = !string.IsNullOrWhiteSpace(message) ? message : "DisconnectedPeripheral by lost signal";
+				Trace.Message($"{m}: {device.Name}");
+				DeviceConnectionLost?.Invoke(this, new DeviceErrorEventArgs { Device = device, ErrorMessage = m });
 
-                if (DiscoveredDevicesRegistry.TryRemove(device.Id, out _))
-                {
-                    Trace.Message("Removed device from discovered devices list: {0}", device.Name);
-                }
-            }
-        }
+				if (DiscoveredDevicesRegistry.TryRemove(device.Id, out _))
+					Trace.Message("Removed device from discovered devices list: {0}", device.Name);
+			}
+		}
 
-        /// <summary>
-        /// Handle connection failure.
-        /// </summary>
-        public void HandleConnectionFail(IDevice device, string errorMessage)
+		/// <summary>
+		/// Handle connection failure.
+		/// </summary>
+		public void HandleConnectionFail(IDevice device, string errorMessage)
         {
             Trace.Message("Failed to connect peripheral {0}: {1}", device.Id, device.Name);
             DeviceConnectionError?.Invoke(this, new DeviceErrorEventArgs
