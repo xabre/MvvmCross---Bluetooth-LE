@@ -148,9 +148,9 @@ namespace Plugin.BLE.Android
         private void CloseGattInstances(BluetoothGatt gatt)
         {
             //ToDO just for me
-            Trace.Message($"References of parent device gatt and callback gatt equal? {ReferenceEquals(_device._gatt, gatt).ToString().ToUpper()}");
+            Trace.Message($"References of parent device gatt and callback gatt equal? {ReferenceEquals(_device.Gatt, gatt).ToString().ToUpper()}");
 
-            if (!ReferenceEquals(gatt, _device._gatt))
+            if (!ReferenceEquals(gatt, _device.Gatt))
             {
                 gatt.Close();
             }

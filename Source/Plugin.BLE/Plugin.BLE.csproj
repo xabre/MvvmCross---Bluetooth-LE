@@ -125,4 +125,8 @@
 		</Reference>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Remove="Shared\Utils\CancelableTaskSync.cs" />
+	</ItemGroup>
+
 </Project>

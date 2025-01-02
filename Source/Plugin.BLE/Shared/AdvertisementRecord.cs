@@ -15,7 +15,7 @@ namespace Plugin.BLE.Abstractions
         /// <summary>
         ///«Incomplete List of 16-bit Service Class UUIDs»	Bluetooth Core 
         /// </summary>
-        UuidsIncomple16Bit = 0x02,
+        UuidsIncomplete16Bit = 0x02,
 
         /// <summary>
         /// «Complete List of 16-bit Service Class UUIDs»	Bluetooth Core 
