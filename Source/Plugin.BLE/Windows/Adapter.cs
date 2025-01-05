@@ -19,16 +19,35 @@ namespace Plugin.BLE.Windows
         private readonly BluetoothAdapter _bluetoothAdapter;
         private BluetoothLEAdvertisementWatcher _bleWatcher;
 
-        /// <summary>
+		/// <summary>
         /// Registry used to store device instances for pending disconnect operations
         /// Helps to detect connection lost events.
         /// </summary>
         private readonly IDictionary<string, IDevice> disconnectingRegistry = new ConcurrentDictionary<string, IDevice>();
 
-        public Adapter(BluetoothAdapter adapter)
-        {
-            _bluetoothAdapter = adapter;
-        }
+		private readonly DeviceWatcher _pairedDeviceWatcher;
+
+		public Adapter(BluetoothAdapter adapter)
+		{
+			_bluetoothAdapter = adapter;
+
+			ConcurrentDictionary<string, Device> bondedDevices = new();
+			_pairedDeviceWatcher = DeviceInformation.CreateWatcher(BluetoothLEDevice.GetDeviceSelectorFromPairingState(true));
+
+			_pairedDeviceWatcher.Added += (_, args) =>
+			{
+                if ((Device)GetBondedDevices().First(dev => dev.Id == args.Id.ToBleDeviceGuidFromId()) is { } device)
+					HandleDeviceBondStateChanged(new() { Device = bondedDevices[args.Id] = device, Address = args.Id.ToBleDeviceGuidFromId().ToBleAddress().ToHexBleAddress(), State = DeviceBondState.Bonded });
+			};
+
+			_pairedDeviceWatcher.Removed += (_, args) =>
+			{
+				if (bondedDevices.TryRemove(args.Id, out Device device))
+					HandleDeviceBondStateChanged(new() { Device = device, Address = args.Id.ToBleDeviceGuidFromId().ToBleAddress().ToHexBleAddress(), State = DeviceBondState.NotBonded });
+			};
+
+			_pairedDeviceWatcher.Start();
+		}
 
         public override async Task BondAsync(IDevice device)
         {
