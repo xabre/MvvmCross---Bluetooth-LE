@@ -161,8 +161,7 @@ namespace Plugin.BLE.iOS
         public void Update(CBPeripheral nativeDevice)
         {
             Rssi = nativeDevice.RSSI?.Int32Value ?? 0;
-            //It's maybe not the best idea to updated the name based on CBPeripherial name because this might be stale.
-            //Name = nativeDevice.Name; 
+            Name = nativeDevice.Name;
         }
 
         protected override async Task<int> RequestMtuNativeAsync(int requestValue, CancellationToken cancellationToken)
