@@ -33,9 +33,7 @@ namespace Plugin.BLE.iOS
             AdvertisementRecords = advertisementRecords;
             IsConnectable = isConnectable;
 
-            // TODO figure out if this is in any way required,
-            // https://github.com/xabre/xamarin-bluetooth-le/issues/81
-            //_nativeDevice.UpdatedName += OnNameUpdated;
+            NativeDevice.UpdatedName += OnNameUpdated;
         }
 
         private void OnNameUpdated(object sender, EventArgs e)
